@@ -5,20 +5,24 @@
 #include "MySerialServer.h"
 #include <thread>
 
-struct Params{
-    int port;
-    ClientHandler* clientHandler;
-};
+//struct Params{
+//    int port;
+//    ClientHandler* clientHandler;
+//};
 
 void MySerialServer::open(int port, ClientHandler *clientHandler) {
+
+    myPort = port;
+    myClientHandler = clientHandler;
+
     pthread_t threadID;
 
-    Params inputsToRunSerialServer;
-    inputsToRunSerialServer.clientHandler = clientHandler;
-    inputsToRunSerialServer.port = port;
+//    Params inputsToRunSerialServer;
+//    inputsToRunSerialServer.clientHandler = clientHandler;
+//    inputsToRunSerialServer.port = port;
 
-    pthread_create(&threadID, nullptr, runSerialServer, (void*)&inputsToRunSerialServer);
-    cout << "main thread is old and dying...\n";
+    pthread_create(&threadID, nullptr, runSerialServer, this);
+    cout << "Let main be\n";
     pthread_join(threadID, nullptr);
 }
 
@@ -29,7 +33,7 @@ void MySerialServer::open(int port, ClientHandler *clientHandler) {
  * @return void pointer.
  */
 void *MySerialServer::runSerialServerFunc(void *arguments) {
-    struct Params *inputsToRunSerialServer = (Params*)arguments;
+    struct Params *inputsToRunSerialServer = (Params *) arguments;
     int clilen;
     struct sockaddr_in serv_addr, cli_addr;
 
@@ -47,7 +51,7 @@ void *MySerialServer::runSerialServerFunc(void *arguments) {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
 
-    serv_addr.sin_port = htons(inputsToRunSerialServer->port);
+    serv_addr.sin_port = htons(this->myPort);
 
     /* Now bind the host address using bind() call.*/
     if (bind(this->sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
@@ -68,43 +72,15 @@ void *MySerialServer::runSerialServerFunc(void *arguments) {
         exit(1);
     }
 
-    cout << "Success\n";
+//    cout << "Success\n";
+//    int sock = this->sockfd;
+    cout << sockfd << "\n";
+//    cout << (inputsToRunSerialServer->clientHandler) << endl;
+    this->myClientHandler->handleClient(this->sockfd);
+    cout << "Yeah!\n";
 
 
 
-    int n = 0;
-    char buffer[256];
-    bzero(buffer, 256);
-    string information;
-
-
-//    inputsToRunSerialServer->clientHandler->handleClient(cin, cout);
-
-
-
-
-
-
-
-
-
-//
-//    while (true) {
-//        n = read(this->sockfd, buffer, 255);
-//        if (n < 0) {
-//            cout << "non valid read from user\n";
-//            this->stop();
-//            pthread_exit(arguments);
-//        }
-//        cout << "n is " << n << "\n";
-//        information = string(buffer);
-//        cout << "Here is info: " << information << endl;
-//        string stringStream;
-//        cout << "Whoo\n";
-//        inputsToRunSerialServer->clientHandler->handleClient(information, stringStream);
-//        cout << stringStream << "\n";
-//        break;
-//    }
 }
 /**
  * This method is used by the pthread to run the opened server.
