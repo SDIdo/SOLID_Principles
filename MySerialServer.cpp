@@ -23,12 +23,23 @@ void MySerialServer::open(int port, ClientHandler *clientHandler) {
  */
 void *MySerialServer::runSerialServerFunc(void *arguments) {
     int clilen;
+    int enable = 1;
     struct sockaddr_in serv_addr, cli_addr;
 
     // open sockets to communicate with clients.
     while(true) {
         /* First call to socket() function */
         this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+        if (setsockopt(this->sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) != 0){
+            perror("Cannot reuse address");
+            exit(1);
+        }
+
+        if (setsockopt(this->sockfd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int)) != 0){
+            perror("Cannot reuse port");
+            exit(1);
+        }
 
         if (this->sockfd < 0) {
             perror("ERROR opening socket");
