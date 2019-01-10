@@ -1,21 +1,24 @@
 //
-// Created by idox on 1/5/19.
+// Created by roy on 1/3/19.
 //
 
-#ifndef CACHE_CACHEMANAGER_H
-#define CACHE_CACHEMANAGER_H
-#include <string>
+#ifndef PROJECTPART2_CACHEMANAGER_H
+#define PROJECTPART2_CACHEMANAGER_H
+
 #include <map>
+#include <string>
+
 using namespace std;
 
-class CacheManager {
+template <class Problem, class Solution>
+class CacheManager{
+
 protected:
-    map<string, string> cache;
+    map<Problem, Solution> cache;
 public:
-    virtual void set(string problem, string solution) = 0;
-    virtual string get(string problem) = 0;
-    virtual bool check(string problem) = 0;
+    virtual Solution get(Problem *problem) = 0; // gets a solution to the problem.
+    virtual void set(Problem *problem, Solution solution) = 0; // sets a solution to the given problem.
+    virtual bool check(Problem *problem) = 0; // check if there is a solution cached for the problem.
 };
 
-
-#endif //CACHE_CACHEMANAGER_H
+#endif //PROJECTPART2_CACHEMANAGER_H

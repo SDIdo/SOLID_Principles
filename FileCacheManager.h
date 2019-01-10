@@ -1,27 +1,34 @@
 //
-// Created by idox on 1/5/19.
+// Created by roy on 1/3/19.
 //
 
-#ifndef CACHE_FILECACHEMANAGER_H
-#define CACHE_FILECACHEMANAGER_H
+#ifndef PROJECTPART2_FILECACHEMANAGER_H
+#define PROJECTPART2_FILECACHEMANAGER_H
+
 #include "CacheManager.h"
 #include <iostream>
-#include <zconf.h>
 #include <cstring>
+#include "Algos/IO.h"
 
-class FileCacheManager : public CacheManager{
+using namespace std;
+
+/**
+ * This class saves answers for a problem in a map, and could check if
+ * a solution is saved. It also writes given solutions to files, so
+ * then can be accessed in the future.
+ */
+class FileCacheManager : public CacheManager<string, string>{
     string myFilePath;
 public:
     FileCacheManager(string filePath);
     ~FileCacheManager() = default;
 
-    virtual void set(string problem, string solution);
-    virtual string get(string problem);
-    virtual bool check(string problem);
+    virtual void set(string *problem, string solution);
+    virtual string get(string *problem);
+    virtual bool check(string *problem);
 
     int read();
     int write();
 };
 
-
-#endif //CACHE_FILECACHEMANAGER_H
+#endif //PROJECTPART2_FILECACHEMANAGER_H

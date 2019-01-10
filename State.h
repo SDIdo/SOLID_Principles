@@ -9,16 +9,17 @@
 
 template<class T>
 class State {
-    T state;
+    T *state;
     double cost;
-    T cameFrom;
+    State<T> *cameFrom;
 
 public:
+
     /**
     * Constructor of State. receives the state.
     * @param state state for the State object.
     */
-    State(T state) {
+     State(T *state) {
         this->state = state;
     }
 
@@ -26,7 +27,7 @@ public:
     * This method returns the state.
     * @return state of the State object.
     */
-    T getState() {
+    T *getState() {
         return this->state;
     }
 
@@ -50,7 +51,7 @@ public:
      * This method sets the new father state of the state.
      * @param newFatherState father state of the state.
      */
-    void setCameFrom(State<T> newFatherState) {
+    void setCameFrom(State<T> *newFatherState) {
         this->cameFrom = newFatherState;
     }
 
@@ -58,7 +59,7 @@ public:
      * This method returns the father of the state.
      * @return previous state (father of the state).
      */
-    State<T> getCameFrom() {
+    State<T> *getCameFrom() {
         return this->cameFrom;
     }
 
@@ -67,10 +68,9 @@ public:
      * @param s given state.
      * @return true if the same state, else false.
      */
-    bool equals(State<T> otherState) {
-        return this->state == otherState.getState();
+    bool equals(State<T> *otherState) {
+        return this->state == otherState->getState();
     }
 };
-
 
 #endif //PROJECTPART2_STATE_H

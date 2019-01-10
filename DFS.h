@@ -1,20 +1,33 @@
 //
-// Created by idox on 1/4/19.
+// Created by roy on 1/9/19.
 //
 
-#ifndef ALGOS_DFS_H
-#define ALGOS_DFS_H
-#include "Searcher.h"
+#ifndef PROJECTPART2_DFS_H
+#define PROJECTPART2_DFS_H
+
 #include <string>
-using namespace std;
-class DFS : public Searcher<std::string>{
+#include <iostream>
+#include <vector>
+#include "Searchable.h"
+#include "Searcher.h"
+
+class DFS : public Searcher {
+    int nodesEvaluated;
 public:
     DFS() = default;
     ~DFS() = default;
+    virtual std::string search(Searchable<Entry> searchable){
+        vector<int> sol = searchable.printAllPaths(source, dest);
+        for (std::vector<int>::iterator it = sol.begin(); it != sol.end(); ++it)
+            std::cout << ' ' << *it;
 
-    virtual std::string search(Graph &graph, int source, int dest); //scat! in seacher to Graph.
-    virtual int getNumberOfNodesEvaluated();
+
+        return "Done";
+    }
+    virtual int getNumberOfNodesEvaluated() {
+        return this->nodesEvaluated;
+    }
 };
 
 
-#endif //ALGOS_DFS_H
+#endif //PROJECTPART2_DFS_H

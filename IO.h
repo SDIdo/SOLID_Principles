@@ -1,14 +1,17 @@
 //
-// Created by idox on 1/9/19.
+// Created by roy on 1/9/19.
 //
 
-#ifndef RWS_IO_H
-#define RWS_IO_H
+#ifndef PROJECTPART2_IO_H
+#define PROJECTPART2_IO_H
+
 #include <string>
 #include <map>
 #include <vector>
 #include <iostream>
 #include <fstream>      // std::fstream
+
+using namespace std;
 using std::string;
 using std::ifstream;
 using std::fstream;
@@ -21,4 +24,4 @@ public:
 };
 
 
-#endif //RWS_IO_H
+#endif //PROJECTPART2_IO_H

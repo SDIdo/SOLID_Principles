@@ -1,14 +1,10 @@
 //
-// Created by idox on 1/4/19.
+// Created by roy on 1/9/19.
 //
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-#ifndef ALGOS_GRAPH_H
-#define ALGOS_GRAPH_H
+#ifndef PROJECTPART2_GRAPH_H
+#define PROJECTPART2_GRAPH_H
+
 
 #include<iostream>
 #include<list>
@@ -46,7 +42,7 @@ public:
     void setVertexCost(int u, double cost);
 
 
- //Add cost of standing on for a certain vertex.
+    //Add cost of standing on for a certain vertex.
     double getVertexCost(int u);
 
     // DFS traversal of the vertices
@@ -59,4 +55,4 @@ public:
 };
 
 
-#endif //ALGOS_GRAPH_H
+#endif //PROJECTPART2_GRAPH_H

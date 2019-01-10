@@ -1,5 +1,5 @@
 //
-// Created by idox on 1/9/19.
+// Created by roy on 1/9/19.
 //
 
 #include "IO.h"
@@ -13,7 +13,7 @@ int IO::readMap(string path, std::map<string, string>&myMap) {
     ifstream inFile;
     inFile.open(path, ifstream::in);
     if (!inFile) {
-        perror("Could not find the file\n");
+        cout << "no existing file\n";
         return 1;
     }
     string input;
