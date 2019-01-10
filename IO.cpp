@@ -1,7 +1,8 @@
 //
-// Created by roy on 1/9/19.
+// Created by idox on 1/10/19.
 //
 
+#include <cstring>
 #include "IO.h"
 
 /**
@@ -9,23 +10,37 @@
  * @param path - file address
  * @return - 0 upon success or 1 elsewise.
  */
-int IO::readMap(string path, std::map<string, string>&myMap) {
+int IO::readMap(string path, std::unordered_map<string, string>&myMap) {
     ifstream inFile;
     inFile.open(path, ifstream::in);
     if (!inFile) {
-        cout << "no existing file\n";
+        perror("Could not find the file\n");
         return 1;
     }
-    string input;
-    string key;
-    string value;
-    string delim;
-    std::vector<string> splitted;
-    while (inFile >> key) {
-        inFile >> delim;
-        inFile >> value;
-        std::cout << "This is going to be in the map: " << key << " = " << value << "\n";
-        myMap[key] = value;
+    std::string info;
+    std::string key;
+    std::string value;
+
+    std::vector<string> keyVal;
+
+    int insertionCycle = 0;
+
+    while(std::getline(inFile, info, '\n')){
+        std::cout << "Current info? " << info << '\n';
+
+        splitToVecByDelim(keyVal, info, "=");
+//        insertionCycle++;
+//        if (insertionCycle == 2){
+
+        std::cout << "What was collected? " << keyVal.at(0) << " = " << keyVal.at(1) << '\n';
+
+//            insertionCycle = 0;
+            key = keyVal.at(0);
+            value = keyVal.at(1);
+
+            myMap[key] = value;
+            keyVal.clear();
+//        }
     }
 }
 /**
@@ -34,7 +49,7 @@ int IO::readMap(string path, std::map<string, string>&myMap) {
  * @param myMap - internal map
  * @return 0 if success, 1 if not.
  */
-int IO::writeMap(string path, std::map<string, string>&myMap){
+int IO::writeMap(string path, std::unordered_map<string, string>&myMap){
     fstream outFile;
     outFile.open(path, ifstream::app);
     if (!outFile) {
@@ -47,9 +62,9 @@ int IO::writeMap(string path, std::map<string, string>&myMap){
     string delim;
     std::vector<string> splitted;
 
-    for (std::map<string,string>::iterator it=myMap.begin(); it!=myMap.end(); ++it) {
+    for (std::unordered_map<string,string>::iterator it=myMap.begin(); it!=myMap.end(); ++it) {
         outFile << it->first;
-        outFile << " = ";
+        outFile << "=";
         outFile << it->second;
         outFile << "\n";
     }
@@ -71,10 +86,22 @@ int IO::writeKeyVal(string path, string key, string val){
         return 1;
     }
     outFile << key;
-    outFile << " = ";
+    outFile << "=";
     outFile << val;
     outFile << "\n";
 
     outFile.close();
     return 0;
+}
+
+void IO::splitToVecByDelim(std::vector<string>&dualVec, const string &toSplit, const string &delim){
+    std::cout << "[spliByDelim] welcome\n";
+    std::size_t current, previous = 0;
+    current = toSplit.find(delim);
+    while (current != std::string::npos) {
+        dualVec.push_back(toSplit.substr(previous, current - previous));
+        previous = current + 1;
+        current = toSplit.find(delim, previous);
+    }
+    dualVec.push_back(toSplit.substr(previous, current - previous));
 }
