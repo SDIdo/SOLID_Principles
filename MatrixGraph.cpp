@@ -27,16 +27,16 @@ vector<vector<int>> MatrixGraph::getStateGrid() {
  * This method returns the initial state of the graph (starting vertex).
  * @return initial state of the graph.
  */
-State<Entry> MatrixGraph::getInitialState() {
-    return this->start;
+State<Entry> *MatrixGraph::getInitialState() {
+    return &this->start;
 }
 
 /**
  * This method returns the goal state of the graph (finish vertex).
  * @return goal state of the graph.
  */
-State<Entry> MatrixGraph::getGoalState() {
-    return this->finish;
+State<Entry> *MatrixGraph::getGoalState() {
+    return &this->finish;
 }
 
 /**
@@ -46,8 +46,8 @@ State<Entry> MatrixGraph::getGoalState() {
  * @param currentState current state entry.
  * @return list of all reachable state entries.
  */
-list<State<Entry>*> MatrixGraph::getAllPossibleStates(State<Entry> currentState) {
-    list<State<Entry>*> possibleStates;
+list<State<Entry> *> MatrixGraph::getAllPossibleStates(State<Entry> currentState) {
+    list<State<Entry> *> possibleStates;
 
     int iValue = currentState.getState()->getI();
     int jValue = currentState.getState()->getJ();

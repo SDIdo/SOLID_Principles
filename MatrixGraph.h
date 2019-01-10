@@ -22,8 +22,8 @@ State<Entry> start, finish;
 int width, height;
 public:
     MatrixGraph(int width, int height, Entry *start, Entry *finish, vector<vector<int>> matrixGrid);
-    State<Entry> getInitialState();
-    State<Entry> getGoalState();
+    State<Entry> *getInitialState();
+    State<Entry> *getGoalState();
     list<State<Entry>*> getAllPossibleStates(State<Entry> s);
     vector<vector<int>> getStateGrid();
 };
