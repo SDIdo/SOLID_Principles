@@ -44,7 +44,9 @@ void MyClientHandler::handleClient(int sockfd) {
 
                 Entry start(matrixGrid.at(matrixGrid.size() - 2).at(0), matrixGrid.at(matrixGrid.size() - 2).at(1));
                 Entry finish(matrixGrid.at(matrixGrid.size() - 1).at(0), matrixGrid.at(matrixGrid.size() - 1).at(1));
-
+                // this will delete the entry and exit points of the matrix from vector.
+                matrixGrid.pop_back();
+                matrixGrid.pop_back();
                 // create the matrix as searchable.
                 Searchable<Entry> *searchable = new MatrixGraph(rowCounter, columnsSize, &start, &finish, matrixGrid);
                 string answerString;
