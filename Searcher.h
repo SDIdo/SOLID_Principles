@@ -1,18 +1,22 @@
 //
-// Created by idox on 1/4/19.
+// Created by roy on 1/9/19.
 //
 
-#ifndef ALGOS_SEARCHER_H
-#define ALGOS_SEARCHER_H
-#include "Graph.h"
+#ifndef PROJECTPART2_SEARCHER_H
+#define PROJECTPART2_SEARCHER_H
+
+#include "Searchable.h"
 #include <string>
+
 using namespace std;
-template<class Solution>
+
+template <class T, class Solution>
 class Searcher {
+protected:
+    int numberOfEvaluated;
 public:
-    virtual Solution search(Graph &graph, int source, int dest) = 0; //scat! in searcher to string!
+    virtual Solution search(Searchable<T> *searchable) = 0;
     virtual int getNumberOfNodesEvaluated() = 0;
 };
 
-
-#endif //ALGOS_SEARCHER_H
+#endif //PROJECTPART2_SEARCHER_H

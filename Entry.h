@@ -16,8 +16,13 @@ public:
     int getI() {
         return this->iValue;
     }
+
     int getJ() {
         return this->jValue;
+    }
+
+    bool operator==(Entry otherEntry) {
+        return this->iValue == otherEntry.getI() && this->jValue == otherEntry.getJ();
     }
 };
 
