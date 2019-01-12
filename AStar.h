@@ -32,16 +32,16 @@ private:
  * @return the additional heuristic
  */
     double calculateHeuristic(State<Entry> *currentState) //@TODO return or set?
-{
+    {
 
-    int currentRow = currentState->getState()->getI();
-    int currentCol = currentState->getState()->getJ();
-    int goalRow = this->goalState->getState()->getI();
-    int goalCol = this->goalState->getState()->getJ();
+        int currentRow = currentState->getState()->getI();
+        int currentCol = currentState->getState()->getJ();
+        int goalRow = this->goalState->getState()->getI();
+        int goalCol = this->goalState->getState()->getJ();
 
-    // Return using the distance formula
-    return sqrt(currentRow - goalRow * (currentRow - goalRow) + (currentCol - goalCol) * (currentCol - goalCol));
-}
+        // Return using the distance formula
+        return sqrt(currentRow - goalRow * (currentRow - goalRow) + (currentCol - goalCol) * (currentCol - goalCol));
+    }
 /**
  * Function checks whether a state got it's heuristic value or not
  * @param state - subject state
@@ -51,7 +51,7 @@ private:
         map<State<Entry> *, double>::iterator it;
         it = globalCost.find(state);
         return (it != globalCost.end());
-}
+    }
 public:
 /**
  * Search using the AStar algorithm that in addition to using cost calculations uses heuristic
@@ -71,17 +71,21 @@ public:
  * note: all that in the queue has heuristic value.
  */
     void prioritize(queue<State<Entry>*> &q) {
+        cout <<"[Welcome to prioritize]\n";
         double minimumCost = DBL_MAX;
         queue<State<Entry> *> priority;
         State<Entry> *previousState;
 
         while (!q.empty()) {
             State<Entry> *currentState = q.front();
+            cout << "[Prioritize]Current entry by cost " << currentState->getCost() << '\n';
             q.pop();
 
             if (currentState->getCost() < minimumCost) {
                 minimumCost = currentState->getCost();
+                cout << "current state is cheaper, updated minimum cost\n";
                 if (!priority.empty()) {
+                    cout << "queue wasn't empty so taking out the first and switching\n";
                     previousState = priority.front();
                     priority.pop();
                     priority.push(currentState);
@@ -144,9 +148,15 @@ public:
                 //That's the road's cost to here.
                 travelCost = this->localCost[currentState] + neighbor->getCost();
 
+                //TEST ZONE
+                cout << "[ASTAR]Current neigbor is " << "(" << neighbor->getState()->getI()
+                     << ", " << neighbor->getState()->getJ() << ")" << " with travlCost: " << travelCost << "\n";
+                //#
+
                 //first check if was added to heuristics:
                 if (!this->checkInHeuristicsMap(neighbor)) {
                     //Well not in Heuristic so should be set and added!
+                    cout << neighbor->getCost() << " wasn't in local cost, so adding it\n";
                     this->localCost[neighbor] = travelCost;
                     //also set the heuristic for this neighbor according to it we'll sort in queue.
                     this->globalCost[neighbor] = travelCost + this->calculateHeuristic(neighbor);
@@ -156,6 +166,8 @@ public:
                 }
                 //should we add this state? check using comparisons between local costs
                 if ((this->localCost[neighbor]) > travelCost) {
+                    cout << "Found a better rout to this neighbor, updating! but won't be added to queue\n";
+                    cout << "So " << neighbor->getCost() << " will get it's came , from : " << currentState->getCost() << "\n";
                     this->localCost[neighbor] = travelCost;
                     this->globalCost[neighbor] = travelCost + this->calculateHeuristic(neighbor);
                     exploringQueue.push(neighbor);
@@ -163,12 +175,14 @@ public:
                     continue;
                 }
             }
+            cout << "next state queued, please sort!\n";
             this->prioritize(exploringQueue);
         }
         //So now that the queue is emptry traverse the states from the last one by each parent and parent
         State<Entry> *state = searchable->getGoalState();
         path.push_back(state);
         while (state->getCameFrom()) {
+            cout << "Loop?\n";
             path.push_back(state->getCameFrom());
             state = state->getCameFrom();
         }
