@@ -49,7 +49,7 @@ void MyTestClientHandler::handleClient(int sockfd) {
             // if the answer is not in the cache - send the problem to solver and save the answer in cache.
             else {
                 answerString = this->solver->solve(&remainder);
-                this->cacheManager->set(&remainder, answerString);
+                this->cacheManager->set(&remainder, &answerString);
             }
             answerString += "\r\n";
             char *answer = &answerString[0];

@@ -12,26 +12,25 @@
 #include <map>
 #include <cfloat>
 
-class AStar : public Searcher<Entry, vector<State<Entry>*>>{
+template <class T>
+class AStar : public Searcher<T, string>{
 private:
     //Always set your goals first ;)
-    State<Entry> *goalState;
+    State<T> *goalState;
     //initialize cost maps
-    map <State<Entry>*,double> globalCost;   //state costs + heuristics
-    map <State<Entry>*,double> localCost;   //only state costs
-    //initialize path
-    vector<State<Entry>*> path;
+    map <State<T>*,double> globalCost;   //state costs + heuristics
+    map <State<T>*,double> localCost;   //only state costs
     //initialize grayList
-    vector<State<Entry>*> greyList;
+    vector<State<T>*> greyList;
     //initializing operations queue
-    queue<State<Entry> *> exploringQueue;
+    queue<State<T> *> exploringQueue;
 
 /**
  * Function sets additional cost to consider shortest path using goalState coordinates
  * @param currentState - a state to add heuristic to
  * @return the additional heuristic
  */
-    double calculateHeuristic(State<Entry> *currentState) //@TODO return or set?
+    double calculateHeuristic(State<T> *currentState) //@TODO return or set?
     {
 
         int currentRow = currentState->getState()->getI();
@@ -47,8 +46,8 @@ private:
  * @param state - subject state
  * @return true or false accordingly
  */
-    bool checkInHeuristicsMap(State<Entry>* state) {
-        map<State<Entry> *, double>::iterator it;
+    bool checkInHeuristicsMap(State<T>* state) {
+        typename map<State<T> *, double>::iterator it;
         it = globalCost.find(state);
         return (it != globalCost.end());
     }
@@ -58,27 +57,30 @@ public:
  * @param searchable - the graph/matrix/any searchable puzzle
  * @return - the least expensive path to the finish.
  */
-    virtual vector<State<Entry>*> search(Searchable<Entry> * searchable){
+    virtual string search(Searchable<T> * searchable){
+        this->searchable = searchable;
         //Would like to know your goal.
         this->goalState = searchable->getGoalState();
         //Would like to know your starting state.
-        State<Entry>* currentState = searchable->getInitialState();
-        return astar(currentState, searchable);
+        State<T> *currentState = searchable->getInitialState();
+        this->path = astar(currentState);
+        reverse(this->path.begin(), this->path.end());
+        return this->get2DPathString();
     }
 /**
  * function simulates a priority queue //@TODO learn to use the native priority queue.
  * @param q - a queue to sort.
  * note: all that in the queue has heuristic value.
  */
-    void prioritize(queue<State<Entry>*> &q) {
+    void prioritize(queue<State<T>*> &q) {
         cout <<"[Welcome to prioritize]\n";
         double minimumCost = DBL_MAX;
-        queue<State<Entry> *> priority;
-        State<Entry> *previousState;
+        queue<State<T> *> priority;
+        State<T> *previousState;
 
         while (!q.empty()) {
-            State<Entry> *currentState = q.front();
-            cout << "[Prioritize]Current entry by cost " << currentState->getCost() << '\n';
+            State<T> *currentState = q.front();
+            cout << "[Prioritize]Current T by cost " << currentState->getCost() << '\n';
             q.pop();
 
             if (currentState->getCost() < minimumCost) {
@@ -98,7 +100,7 @@ public:
             };
             priority.push(currentState);
         }
-        State<Entry> *toPut;
+        State<T> *toPut;
         while (!priority.empty()) {
             toPut = priority.front();
             q.push(toPut);
@@ -111,13 +113,13 @@ public:
  * @param searchable - a puzzle or any searchable field
  * @return the least expensive path to the finish.
  */
-    virtual vector<State<Entry>*> astar(State<Entry> *currentState, Searchable<Entry> *searchable) {
+    virtual vector<State<T>*> astar(State<T> *currentState) {
         if (currentState == goalState){
-            path.push_back(currentState);
-            return path;
+            this->path.push_back(currentState);
+            return this->path;
         }
         if (currentState->getCost() == -1){
-            return path;
+            return this->path;
         }
         double travelCost = 0;
         exploringQueue.push(currentState);
@@ -139,9 +141,9 @@ public:
                 continue;
             }
             this->numberOfEvaluated += 1;
-            list<State<Entry> *> neighbors = searchable->getAllPossibleStates(currentState);
+            list<State<T> *> neighbors = this->searchable->getAllPossibleStates(currentState);
 
-            for (State<Entry> *neighbor : neighbors) {
+            for (State<T> *neighbor : neighbors) {
                 if (neighbor->getCost() == -1){
                     continue;
                 }
@@ -179,14 +181,14 @@ public:
             this->prioritize(exploringQueue);
         }
         //So now that the queue is emptry traverse the states from the last one by each parent and parent
-        State<Entry> *state = searchable->getGoalState();
-        path.push_back(state);
+        State<T> *state = this->searchable->getGoalState();
+        this->path.push_back(state);
         while (state->getCameFrom()) {
             cout << "Loop?\n";
-            path.push_back(state->getCameFrom());
+            this->path.push_back(state->getCameFrom());
             state = state->getCameFrom();
         }
-        return path;
+        return this->path;
     }
     virtual int getNumberOfNodesEvaluated(){
         return this->numberOfEvaluated;

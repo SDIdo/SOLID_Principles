@@ -6,6 +6,7 @@
 #define PROJECTPART2_DFSB_H
 
 #include <vector>
+#include <stack>
 #include <iostream>
 #include <algorithm>
 #include "Searcher.h"
@@ -13,50 +14,90 @@
 using namespace std;
 
 template<class T>
-class DFS : public Searcher<T, vector<State<T> *>> {
-    vector<State<T> *> black;
+class DFS : public Searcher<T, string> {
     vector<State<T> *> grey;
-    vector<State<T> *> path;
+    std::stack<State<T> *> stack;
 
-    vector<State<T> *> dfs(State<T> *currentState, Searchable<T> *searchable) {
-        grey.push_back(currentState);
-        this->numberOfEvaluated += 1;
-        // if the algorithm reached the goal state.
-        if (currentState->equals(searchable->getGoalState())) {
-            // get the path, as long as the father is not null.
-            path.push_back(currentState);
-            while (currentState->getCameFrom()) {
-                path.push_back(currentState->getCameFrom());
-                currentState = currentState->getCameFrom();
+    vector<State<T> *> dfs(State<T> *currentState) {
+
+        this->grey.push_back(currentState);
+
+        while (!this->stack.empty()) {
+            currentState = this->stack.top();
+            this->stack.pop();
+            this->numberOfEvaluated += 1;
+            // if the algorithm reached the goal state.
+            if (currentState->equals(this->searchable->getGoalState())) {
+                // get the reversed path, as long as the father is not null.
+                this->path.push_back(currentState);
+                while (currentState->getCameFrom()) {
+                    this->path.push_back(currentState->getCameFrom());
+                    currentState = currentState->getCameFrom();
+                }
+                return this->path;
             }
-            return path;
+            list<State<T> *> neighborsList = this->searchable->getAllPossibleStates(currentState);
+            for (State<T> *neighbor : neighborsList) {
+                // if the state is in the grey list.
+                if (find(grey.begin(), grey.end(), neighbor) != grey.end() || neighbor->getCost() == -1) {
+                    std::cout << "Element found in grey: " << '\n';
+                    continue;
+                }
+                // if the neighbor was not visited yet, set the father to be the current state and visit it.
+                neighbor->setCameFrom(currentState);
+                this->stack.push(neighbor);
+            }
+            return dfs(this->stack.top());
+
         }
-        list<State<T> *> neighborsList = searchable->getAllPossibleStates(currentState);
-        for (State<T> * neighbor : neighborsList) {
-            // if the state is in the black list.
-            if (find(black.begin(), black.end(), neighbor) != black.end()) {
-                std::cout << "Element found in black: " << '\n';
-                continue;
-            }
-            // if the state is in the grey list.
-            if (find(grey.begin(), grey.end(), neighbor) != grey.end()) {
-                std::cout << "Element found in grey: " << '\n';
-                continue;
-            }
-            // if the neighbor was not visited yet, set the father to be the current state and visit it.
-            neighbor->setCameFrom(currentState);
-            return dfs(neighbor, searchable);
-        }
-        // when finished with current state, it is already evaluated.
-        black.push_back(currentState);
     }
+
+    /**
+     * Older version of DFS...
+     */
+//        this->numberOfEvaluated += 1;
+//        // if the algorithm reached the goal state.
+//        if (currentState->equals(this->searchable->getGoalState())) {
+//            // get the path, as long as the father is not null.
+//            this->path.push_back(currentState);
+//            while (currentState->getCameFrom()) {
+//                this->path.push_back(currentState->getCameFrom());
+//                currentState = currentState->getCameFrom();
+//            }
+//            return this->path;
+//        }
+//        list<State<T> *> neighborsList = this->searchable->getAllPossibleStates(currentState);
+//        for (State<T> *neighbor : neighborsList) {
+//            // if the state is in the black list, grey list or if the cost is -1, continue.
+//            if (find(grey.begin(), grey.end(), neighbor) != grey.end() || neighbor->getCost() == -1) {
+//                std::cout << "Element found in black/grey/value -1: " << '\n';
+//                continue;
+//            }
+//
+//            // if the neighbor was not visited yet, set the father to be the current state and visit it.
+//            neighbor->setCameFrom(currentState);
+//            return dfs(neighbor);
+//        }
+//        // if state has no more neighbors.
+//        return this->path;
+
 
 public:
     DFS() = default;
 
-    virtual vector<State<T> *> search(Searchable<T> *searchable) {
-        State<T> *currentState = searchable->getInitialState();
-        return this->dfs(currentState, searchable);
+    virtual string search(Searchable<T> *searchable) {
+        this->searchable = searchable;
+        vector<State<T> *> path;
+        State<T> *startState;
+        string pathString;
+
+        startState = searchable->getInitialState();
+        this->stack.push(startState);
+        this->path = this->dfs(startState); // search by BFS and return reversed path.
+
+        reverse(this->path.begin(), this->path.end()); // reverse the path to get shortest path to finish.
+        pathString = this->get2DPathString();
+        return pathString;
     }
 
     virtual int getNumberOfNodesEvaluated() {

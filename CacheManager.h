@@ -16,7 +16,7 @@ protected:
     map<Problem, Solution> cache;
 public:
     virtual Solution get(Problem *problem) = 0; // gets a solution to the problem.
-    virtual void set(Problem *problem, Solution solution) = 0; // sets a solution to the given problem.
+    virtual void set(Problem *problem, Solution *solution) = 0; // sets a solution to the given problem.
     virtual bool check(Problem *problem) = 0; // check if there is a solution cached for the problem.
 };
 

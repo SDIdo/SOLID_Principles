@@ -30,13 +30,13 @@ public:
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (i == start->getI() && j == start->getJ()) {
-                    this->start = new State<Entry>(new Entry(i,j));
+                    this->start = new State<Entry>(new Entry(i, j));
                     this->start->setCost(matrixGrid.at(i).at(j));
                     this->matrixStates[to_string(i) + "," + to_string(j)] = this->start;
                     continue;
                 }
                 if (i == finish->getI() && j == finish->getJ()) {
-                    this->finish = new State<Entry>(new Entry(i,j));
+                    this->finish = new State<Entry>(new Entry(i, j));
                     this->finish->setCost(matrixGrid.at(i).at(j));
                     this->matrixStates[to_string(i) + "," + to_string(j)] = this->finish;
                     continue;
@@ -92,6 +92,20 @@ public:
             possibleStates.push_back(this->matrixStates.at(to_string(iValue - 1) + "," + to_string(jValue)));
         }
         return possibleStates;
+    }
+
+    /**
+     * This method returns the relation between two states of a matrix,
+     * by comparing their i and j values (subtraction).
+     * @param s1 first state.
+     * @param s2 second state.
+     * @return vector of double relations of i and j.
+     */
+    virtual vector<double> getRelation(State<Entry> *s1, State<Entry> *s2) {
+        vector<double> relation;
+        relation.push_back(s1->getState()->getI() - s2->getState()->getI());
+        relation.push_back(s1->getState()->getJ() - s2->getState()->getJ());
+        return relation;
     }
 
     vector<vector<int>> getStateGrid() {

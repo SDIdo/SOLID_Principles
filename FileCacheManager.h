@@ -23,7 +23,7 @@ public:
     FileCacheManager(string filePath);
     ~FileCacheManager() = default;
 
-    virtual void set(string *problem, string solution);
+    virtual void set(string *problem, string *solution);
     virtual string get(string *problem);
     virtual bool check(string *problem);
 };

@@ -7,6 +7,7 @@
 
 #include "State.h"
 #include <list>
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -24,10 +25,7 @@ public:
     virtual State<T> *getInitialState() = 0;
     virtual State<T> *getGoalState() = 0;
     virtual list<State<T>*> getAllPossibleStates(State<T> *s) = 0;
-    virtual string *toString() {
-        string s = "hey";
-        return &s;
-    }
+    virtual vector<double> getRelation(State<T> *s1, State<T> * s2) = 0;
 };
 
 

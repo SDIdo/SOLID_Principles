@@ -10,9 +10,9 @@ FileCacheManager::FileCacheManager(string filePath) {
     IO::readMap(filePath, this->cache);
 }
 
-void FileCacheManager::set(string *problem, string solution) {
-    cache[*problem] = solution;
-    IO::writeKeyVal(this->myFilePath, *problem, solution);
+void FileCacheManager::set(string *problem, string *solution) {
+    cache[*problem] = *solution;
+    IO::writeKeyVal(this->myFilePath, *problem, *solution);
 }
 
 bool FileCacheManager::check(string *problem) {

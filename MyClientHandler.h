@@ -21,23 +21,24 @@ using namespace std;
 
 template<class T, class Solution, class Problem>
 class MyClientHandler : public ClientHandler {
-    Solver<Searchable<T>, vector<State<Entry> *>> *solver;
+    Solver<Searchable<T>, string> *solver;
     CacheManager<Problem, Solution> *cacheManager;
 public:
-    MyClientHandler(Solver<Searchable<T>, vector<State<Entry> *>> *solver,
+    MyClientHandler(Solver<Searchable<T>, string> *solver,
                     CacheManager<Problem, Solution> *cacheManager) {
         this->solver = solver;
         this->cacheManager = cacheManager;
     }
 
     ~MyClientHandler() = default;
+
     void handleClient(int sockfd) {
         // get input from input stream until "/n", each will be a row of the matrix.
         int index = 0;
         int n = 0;
-        int rowCounter = 0;
+        int numOfRows, columnsSize;
         char buffer[256];
-        string remainder, backRemainder, information;
+        string remainder, backRemainder, information, problemString, answerString;
         bool isDataEnd = false;
         vector<string> rowsVector;
 
@@ -62,35 +63,42 @@ public:
             if (isDataEnd) {
                 // if the user wrote 'end' - the matrix is assembled and sent to solver.
                 if (remainder == "end") {
-                    vector<vector<int>> matrixGrid;
-                    for (string str : rowsVector) {
-                        matrixGrid.push_back(line_parse(str));
-                    }
-                    int columnsSize = matrixGrid[0].size();
 
-                    Entry start(matrixGrid.at(matrixGrid.size() - 2).at(0), matrixGrid.at(matrixGrid.size() - 2).at(1));
-                    Entry finish(matrixGrid.at(matrixGrid.size() - 1).at(0), matrixGrid.at(matrixGrid.size() - 1).at(1));
-                    // this will delete the entry and exit points of the matrix from vector.
-                    matrixGrid.pop_back();
-                    matrixGrid.pop_back();
-                    // create the matrix as searchable.
-                    Searchable<Entry> *searchable = new MatrixGraph(rowCounter, columnsSize, &start, &finish, matrixGrid);
-                    string answerString;
-                    // if the answer is in the cache - it will be written to client.
-                    if (this->cacheManager->check(searchable->toString())) {
-                        answerString = this->cacheManager->get(searchable->toString());
+                    // if the answer to the problem is in the cache - it will be written to client.
+                    if (this->cacheManager->check(&problemString)) {
+                        cout << "FOUND IN THE CACHE!";
+                        answerString = this->cacheManager->get(&problemString);
                     }
-                        // if the answer is not in the cache - send the problem to solver and save the answer in cache.
+                        // if the answer is not in the cache - create searchable for solver and save answer in cache.
                     else {
-                        vector<State<Entry>*> s = this->solver->solve(searchable);
-                        this->cacheManager->set(searchable->toString(), answerString);
+                        vector<vector<int>> matrixGrid;
+                        for (string str : rowsVector) {
+                            matrixGrid.push_back(line_parse(str));
+                        }
+                        // create the start and finish entries.
+                        Entry start(matrixGrid.at(matrixGrid.size() - 2).at(0),
+                                    matrixGrid.at(matrixGrid.size() - 2).at(1));
+                        Entry finish(matrixGrid.at(matrixGrid.size() - 1).at(0),
+                                     matrixGrid.at(matrixGrid.size() - 1).at(1));
+                        // this will delete the entry and exit points of the matrix from vector.
+                        matrixGrid.pop_back();
+                        matrixGrid.pop_back();
+                        // get the size of the matrix.
+                        columnsSize = matrixGrid[0].size();
+                        numOfRows = matrixGrid.size();
+
+                        // create the matrix as searchable.
+                        Searchable<Entry> *searchable = new MatrixGraph(columnsSize, numOfRows, &start, &finish,
+                                                                        matrixGrid);
+                        answerString = this->solver->solve(searchable);
+                        this->cacheManager->set(&problemString, &answerString);
                     }
                     answerString += "\r\n";
                     char *answer = &answerString[0];
                     n = write(sockfd, answer, answerString.length());
                     break;
                 }
-                rowCounter += 1; // another row of the matrix.
+                problemString += information;
                 rowsVector.push_back(remainder); // insert the row string to the vector.
                 remainder = "";
                 isDataEnd = false;

@@ -5,8 +5,6 @@
 #ifndef PROJECTPART2_BESTFIRSTSEARCH_H
 #define PROJECTPART2_BESTFIRSTSEARCH_H
 
-
-#include "Entry.h"
 #include <iostream>
 #include <queue>
 #include <cfloat>
@@ -26,14 +24,15 @@ struct pr_greater {
     }
 };
 
-class BestFirstSearch : public Searcher<Entry, vector <State< Entry>*>> {
+template <class T>
+class BestFirstSearch : public Searcher<T, string> {
 private:
-    State<Entry> *goalState;
-    map<State<Entry> *, double> globalCost; //TODO maybe only by cost
-    map<State<Entry> *, double> localCost;  //TODO maybe wont need it
-    vector<State<Entry> *> path;
-    priority_queue<State<Entry>*, vector<State<Entry>*>, pr_greater > exploringQueue;
-    vector<State<Entry>*> closedList;
+    State<T> *goalState;
+    map<State<T> *, double> globalCost; //TODO maybe only by cost
+    map<State<T> *, double> localCost;  //TODO maybe wont need it
+    vector<State<T> *> path;
+    priority_queue<State<T>*, vector<State<T>*>, pr_greater > exploringQueue;
+    vector<State<T>*> closedList;
 
 
     /**
@@ -41,7 +40,7 @@ private:
 * @param currentState - a state to add heuristic to
 * @return the additional heuristic
 */
-    double calculateHeuristic(State<Entry> *currentState) //@TODO return or set?
+    double calculateHeuristic(State<T> *currentState) //@TODO return or set?
     {
 
         int currentRow = currentState->getState()->getI();
@@ -58,8 +57,8 @@ private:
  * @param state - subject state
  * @return true or false accordingly
  */
-    bool checkInHeuristicsMap(State<Entry> *state) {    //might be redundant here.
-        map<State<Entry>*, double>::iterator it;
+    bool checkInHeuristicsMap(State<T> *state) {    //might be redundant here.
+        typename map<State<T>*, double>::iterator it;
         it = globalCost.find(state);
         return (it != globalCost.end());
     }
@@ -69,12 +68,15 @@ public:
  * @param searchable - the graph/matrix/any searchable puzzle
  * @return - the least expensive path to the finish.
  */
-    virtual vector<State<Entry>*> search(Searchable<Entry> * searchable){
+    virtual string search(Searchable<T> * searchable){
+        this->searchable = searchable;
         //Would like to know your goal.
         this->goalState = searchable->getGoalState();
         //Would like to know your starting state.
-        State<Entry>* currentState = searchable->getInitialState();
-        return bestFirstSearch(currentState, searchable);
+        State<T> *currentState = searchable->getInitialState();
+        this->path = bestFirstSearch(currentState);
+        reverse(this->path.begin(), this->path.end());
+        return this->get2DPathString();
     }
     /**
  *
@@ -82,7 +84,7 @@ public:
  * @param searchable - a puzzle or any searchable field
  * @return the least expensive path to the finish.
  */
-    virtual vector<State<Entry>*> bestFirstSearch(State<Entry> *currentState, Searchable<Entry> *searchable) {
+    virtual vector<State<T>*> bestFirstSearch(State<T> *currentState) {
         if (currentState->getCost() == -1) {
             return path;
         }
@@ -117,9 +119,9 @@ public:
                 continue;
             }
             this->numberOfEvaluated += 1;
-            list<State<Entry> *> neighbors = searchable->getAllPossibleStates(currentState);
+            list<State<T> *> neighbors = this->searchable->getAllPossibleStates(currentState);
 
-            for (State<Entry> *neighbor : neighbors) {
+            for (State<T> *neighbor : neighbors) {
                 if (neighbor->getCost() == -1) {
                     continue;
                 }
@@ -158,8 +160,8 @@ public:
             cout << "next state queued, please sort! Already Sorted!\n";
         }
     }
-        //So now that the queue is empty traverse the states from the last one by each parent and parent
-//        State<Entry> *state = searchable->getGoalState();
+    //So now that the queue is empty traverse the states from the last one by each parent and parent
+//        State<T> *state = searchable->getGoalState();
 //        path.push_back(state);
 //        while (state->getCameFrom()) {
 //            cout << "Getting the path\n";

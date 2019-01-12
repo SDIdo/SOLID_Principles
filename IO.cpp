@@ -10,7 +10,7 @@
  * @param path - file address
  * @return - 0 upon success or 1 elsewise.
  */
-int IO::readMap(string path, std::map<string, string>&myMap) {
+int IO::readMap(string path, std::map<string, string> &myMap) {
     ifstream inFile;
     inFile.open(path, ifstream::in);
     if (!inFile) {
@@ -20,36 +20,32 @@ int IO::readMap(string path, std::map<string, string>&myMap) {
     std::string info;
     std::string key;
     std::string value;
-
     std::vector<string> keyVal;
-
     int insertionCycle = 0;
 
-    while(std::getline(inFile, info, '\n')){
+    while (std::getline(inFile, info, '$')) {
         std::cout << "Current info? " << info << '\n';
 
-        splitToVecByDelim(keyVal, info, "=");
-//        insertionCycle++;
-//        if (insertionCycle == 2){
-
-        std::cout << "What was collected? " << keyVal.at(0) << " = " << keyVal.at(1) << '\n';
-
-//            insertionCycle = 0;
-        key = keyVal.at(0);
-        value = keyVal.at(1);
-
+        if (insertionCycle == 0) {
+            key += info;
+            insertionCycle++;
+            continue;
+        }
+        value = info.substr(1, info.find("\r\n") - 1);
         myMap[key] = value;
-        keyVal.clear();
-//        }
+        std::cout << "key: " << key << '\n';
+        std::cout << "val" << value << "\n";
+        insertionCycle = 0;
     }
 }
+
 /**
  * Write map only after solver. Not if solution is found.
  * @param path - name of file
  * @param myMap - internal map
  * @return 0 if success, 1 if not.
  */
-int IO::writeMap(string path, std::map<string, string>&myMap){
+int IO::writeMap(string path, std::map<string, string> &myMap) {
     fstream outFile;
     outFile.open(path, ifstream::app);
     if (!outFile) {
@@ -62,15 +58,16 @@ int IO::writeMap(string path, std::map<string, string>&myMap){
     string delim;
     std::vector<string> splitted;
 
-    for (std::map<string,string>::iterator it=myMap.begin(); it!=myMap.end(); ++it) {
+    for (std::map<string, string>::iterator it = myMap.begin(); it != myMap.end(); ++it) {
         outFile << it->first;
-        outFile << "=";
+        outFile << "$";
         outFile << it->second;
-        outFile << "\n";
+        outFile << "\r\n";
     }
     outFile.close();
     return 0;
 }
+
 /**
  * writing current instance of map to the file
  * @param path - file to write to
@@ -78,7 +75,7 @@ int IO::writeMap(string path, std::map<string, string>&myMap){
  * @param value - value of the key
  * @return 0 if success, 1 otherwise.
  */
-int IO::writeKeyVal(string path, string key, string val){
+int IO::writeKeyVal(string path, string key, string val) {
     fstream outFile;
     outFile.open(path, ifstream::app);
     if (!outFile) {
@@ -86,7 +83,7 @@ int IO::writeKeyVal(string path, string key, string val){
         return 1;
     }
     outFile << key;
-    outFile << "=";
+    outFile << "$";
     outFile << val;
     outFile << "\n";
 
@@ -94,7 +91,7 @@ int IO::writeKeyVal(string path, string key, string val){
     return 0;
 }
 
-void IO::splitToVecByDelim(std::vector<string>&dualVec, const string &toSplit, const string &delim){
+void IO::splitToVecByDelim(std::vector<string> &dualVec, const string &toSplit, const string &delim) {
     std::cout << "[spliByDelim] welcome\n";
     std::size_t current, previous = 0;
     current = toSplit.find(delim);
