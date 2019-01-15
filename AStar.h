@@ -4,6 +4,7 @@
 
 #ifndef PROJECTPART2_BSTAR_H
 #define PROJECTPART2_BSTAR_H
+
 #include "Searcher.h"
 #include <vector>
 #include <cmath>
@@ -15,8 +16,6 @@
 template <class T>
 class AStar : public Searcher<T, string>{
 private:
-    //Always set your goals first ;)
-    State<T> *goalState;
     //initialize cost maps
     map <State<T>*,double> globalCost;   //state costs + heuristics
     map <State<T>*,double> localCost;   //only state costs
@@ -33,8 +32,8 @@ private:
 
         int currentRow = currentState->getState()->getI();
         int currentCol = currentState->getState()->getJ();
-        int goalRow = this->goalState->getState()->getI();
-        int goalCol = this->goalState->getState()->getJ();
+        int goalRow = this->searchable->getGoalState()->getState()->getI();
+        int goalCol = this->searchable->getGoalState()->getState()->getJ();
 
         // Return using the distance formula
         return sqrt(currentRow - goalRow * (currentRow - goalRow) + (currentCol - goalCol) * (currentCol - goalCol));
@@ -58,11 +57,13 @@ public:
     virtual string search(Searchable<T> * searchable){
         this->numberOfEvaluated = 0;
         this->searchable = searchable;
-        //Would like to know your goal.
-        this->goalState = searchable->getGoalState();
+
         //Would like to know your starting state.
         State<T> *currentState = searchable->getInitialState();
-        astar(currentState);
+        if (currentState->equals(this->searchable->getGoalState())) {
+            return "Just stay in place";
+        }
+        this->astar(currentState);
         //clearing stage except for the path
         while (!exploringQueue.empty()){
             exploringQueue.pop();
@@ -119,9 +120,6 @@ public:
  * @return the least expensive path to the finish.
  */
     virtual void astar(State<T> *currentState) {
-        if (currentState == goalState){
-            this->path.push_back(currentState);
-        }
         if (currentState->getCost() == -1){
             return;
         }
@@ -138,10 +136,7 @@ public:
             exploringQueue.pop();
             //explore all neighbors of current queued state
 
-            if (currentState == goalState){
-                continue;
-            }
-            if (currentState->getCost() == -1){
+            if (currentState->equals(this->searchable->getGoalState())){
                 continue;
             }
             this->numberOfEvaluated += 1;
@@ -181,21 +176,18 @@ public:
                     continue;
                 }
             }
-//            cout << "next state queued, please sort!\n";
             this->prioritize(exploringQueue);
         }
         //So now that the queue is emptry traverse the states from the last one by each parent and parent
         State<T> *state = this->searchable->getGoalState();
         this->path.push_back(state);
-   
+
         while (state->getCameFrom()) {
-//            cout << "Loop?\n";
             this->path.push_back(state->getCameFrom());
             state = state->getCameFrom();
-            cout << "The State: " << state->getCost() << '\n';
-//            cout << "The Came From: " << state->getCameFrom()->getCost() << '\n';
         }
     }
+
     virtual int getNumberOfNodesEvaluated(){
         return this->numberOfEvaluated;
     }

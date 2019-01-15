@@ -11,7 +11,7 @@
 
 /**
  * Interface of Server.
- * Each server could connect in a different port and have
+ * Each server could connect on a different port and have
  * different client handling protocols.
  */
 
@@ -22,6 +22,7 @@ namespace server_side {
     public:
         virtual void open(int port, ClientHandler *clientHandler) = 0;
         virtual void stop() = 0;
+        virtual ~Server() = default;
     };
 }
 

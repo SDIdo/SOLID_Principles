@@ -10,7 +10,7 @@
  * @param path - file address
  * @return - 0 upon success or 1 elsewise.
  */
-int IO::readMap(string path, std::map<string, string> &myMap) {
+int IO::readMap(string path, std::unordered_map<string, string> &myMap) {
     ifstream inFile;
     inFile.open(path, ifstream::in);
     if (!inFile) {
@@ -23,20 +23,37 @@ int IO::readMap(string path, std::map<string, string> &myMap) {
     std::vector<string> keyVal;
     int insertionCycle = 0;
 
-    while (std::getline(inFile, info, '$')) {
-        std::cout << "Current info? " << info << '\n';
+    while (std::getline(inFile, info)) {
+        std::cout << "Current info is: " << info << '\n';
 
-        if (insertionCycle == 0) {
+        if (info.at(0) != '{' && info.at(0) != '$') {
             key += info;
-            insertionCycle++;
-            continue;
+            key += "\n";
+        } else if (info.at(0) == '{'){
+            value = info;
+            myMap[key] = value;
+            std::cout << key << ":" << value <<'\n';
+            key = "";
+            value = "";
         }
-        value = info.substr(1, info.find("\r\n") - 1);
-        myMap[key] = value;
-        std::cout << "key: " << key << '\n';
-        std::cout << "val" << value << "\n";
-        insertionCycle = 0;
+
     }
+
+//    while (std::getline(inFile, info)) {
+//        std::cout << "Current info is: " << info << '\n';
+//
+//        if (insertionCycle == 0) {
+//            key = info;
+//            insertionCycle = 1;
+//            continue;
+//        }
+//        value = info.substr(0, info.find("\r\n") - 1);
+//        myMap[key] = value;
+//        std::cout << key << ":" << value <<'\n';
+//        key = "";
+//        value = "";
+//        insertionCycle = 0;
+//    }
 }
 
 /**
@@ -45,7 +62,7 @@ int IO::readMap(string path, std::map<string, string> &myMap) {
  * @param myMap - internal map
  * @return 0 if success, 1 if not.
  */
-int IO::writeMap(string path, std::map<string, string> &myMap) {
+int IO::writeMap(string path, std::unordered_map<string, string> &myMap) {
     fstream outFile;
     outFile.open(path, ifstream::app);
     if (!outFile) {
@@ -56,9 +73,9 @@ int IO::writeMap(string path, std::map<string, string> &myMap) {
     string key;
     string value;
     string delim;
-    std::vector<string> splitted;
+    std::vector<string> splited;
 
-    for (std::map<string, string>::iterator it = myMap.begin(); it != myMap.end(); ++it) {
+    for (std::unordered_map<string, string>::iterator it = myMap.begin(); it != myMap.end(); ++it) {
         outFile << it->first;
         outFile << "$";
         outFile << it->second;
@@ -84,6 +101,7 @@ int IO::writeKeyVal(string path, string key, string val) {
     }
     outFile << key;
     outFile << "$";
+    outFile << "\n";
     outFile << val;
     outFile << "\n";
 

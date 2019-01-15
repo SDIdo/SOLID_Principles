@@ -6,9 +6,10 @@
 
 struct A {
     ClientHandler *ch;
-    int sock;
-    pthread_t pthreadID;
+    int *sock;
 };
+
+MyParallelServer::~MyParallelServer() = default;
 
 void MyParallelServer::open(int port, ClientHandler *clientHandler) {
     this->clientHandler = clientHandler;
@@ -25,6 +26,12 @@ void MyParallelServer::open(int port, ClientHandler *clientHandler) {
 void MyParallelServer::runParallelServer() {
     int clilen;
     int enable = 1;
+    timeval servertimeout;
+    servertimeout.tv_sec = 1;
+    servertimeout.tv_usec = 0;
+    timeval clienttimeout;
+    clienttimeout.tv_sec = 0;
+    clienttimeout.tv_usec = 0;
     struct sockaddr_in serv_addr, cli_addr;
 
     // open sockets to communicate with clients.
@@ -63,34 +70,41 @@ void MyParallelServer::runParallelServer() {
     /* Now start listening for the clients, here process will
      * go in sleep mode and will wait for the incoming connection
      */
-
-    cout << "Listening\n";
     listen(this->sockfd, SOMAXCONN);
     clilen = sizeof(cli_addr);
     /* Accept actual connection from the client */
     while (true) {
         int newSocket = accept(this->sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
         if (newSocket < 0) {
-            perror("ERROR on accept");
-            exit(1);
+            // if there was no connection for the time period that was set.
+            if (errno == EWOULDBLOCK) {
+                cout << "timeout!" << endl;
+                this->stop();
+                return;
+            } else {
+                perror("other error");
+                exit(3);
+            }
         }
-        cout << "HERE WITH NEW CLIENT!\n";
-        cout << "Success\n";
 
         pthread_t threadID;
         A *a = new A();
-        a->sock = newSocket;
+        a->sock = &newSocket;
         a->ch = this->clientHandler;
-        a->pthreadID = threadID;
         pthread_create(&threadID, nullptr, &clientHandling, (void *) a);
-        cout << "Moving to next client listen\n";
-
+        this->pthreadWorkers.push_back(threadID);
+        // set timer for socket for the next clients.
+        setsockopt(this->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &servertimeout, sizeof(servertimeout));
+        setsockopt(newSocket, SOL_SOCKET, SO_RCVTIMEO, (char *) &clienttimeout, sizeof(clienttimeout));
     }
-    close(this->sockfd); // close the socket.
 }
 
 void MyParallelServer::stop() {
-
+    cout << "Welcome to bye\n";
+    for (pthread_t pthreadId : this->pthreadWorkers) {
+        pthread_join(pthreadId, nullptr);
+    }
+    cout << "All pthread have been joined.\n";
 }
 
 void MyParallelServer::start() {
@@ -98,8 +112,11 @@ void MyParallelServer::start() {
 }
 
 void *MyParallelServer::clientHandling(void *a) {
+    cout << "handle started\n";
     A *b = (A *) a;
     b->ch->handleClient(b->sock);
-    close(b->sock);
-    pthread_exit(&b->pthreadID);
+    cout << "handle ended\n";
+    close(*b->sock);
+    delete(b);
+//    pthread_exit(&b->pthreadID);
 }

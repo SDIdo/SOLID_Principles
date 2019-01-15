@@ -26,6 +26,7 @@ public:
     virtual State<T> *getGoalState() = 0;
     virtual list<State<T>*> getAllPossibleStates(State<T> *s) = 0;
     virtual vector<double> getRelation(State<T> *s1, State<T> * s2) = 0;
+    virtual ~Searchable() = default;
 };
 
 

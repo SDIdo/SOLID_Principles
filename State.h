@@ -12,6 +12,7 @@ class State {
     T *state;
     double cost;
     State<T> *cameFrom;
+    double distance;
 
 public:
 
@@ -21,7 +22,13 @@ public:
     */
      State(T *state) {
         this->state = state;
+        this->cameFrom = nullptr;
+        this->cost = 0;
     }
+
+    ~State() {
+         delete(this->state);
+     }
 
     /**
     * This method returns the state.
@@ -70,6 +77,13 @@ public:
      */
     bool equals(State<T> *otherState) {
         return this->state == otherState->getState();
+    }
+
+    void setDistance(double newDistance) {
+        this->distance = newDistance;
+    }
+    double getDistance() {
+        return this->distance;
     }
 };
 

@@ -21,6 +21,9 @@ public:
     SearcherSolver(Searcher<T, Solution> *searcher) {
         this->searcher = searcher;
     }
+    ~SearcherSolver() {
+        delete(this->searcher);
+    }
     virtual Solution solve(Searchable<T> *searchable) {
         return this->searcher->search(searchable);
     }

@@ -1,12 +1,21 @@
 //
+// Created by roy on 1/15/19.
+//
+
+#ifndef PROJECTPART2_MATRIXTESTER_H
+#define PROJECTPART2_MATRIXTESTER_H
+
+
+//
 // Created by idox on 1/14/19.
 //
 
-#ifndef VER2_MATRIXTESTER_H
-#define VER2_MATRIXTESTER_H
 #include <iostream>
 #include <vector>
 #include <string>
+#include "Entry.h"
+
+using namespace std;
 
 
 class MatrixTester {
@@ -22,4 +31,4 @@ public:
 };
 
 
-#endif //VER2_MATRIXTESTER_H
+#endif //PROJECTPART2_MATRIXTESTER_H

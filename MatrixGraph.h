@@ -26,6 +26,7 @@ public:
     MatrixGraph(int width, int height, Entry *start, Entry *finish, vector<vector<int>> matrixGrid) {
         this->width = width;
         this->height = height;
+        bool isFinishStart = false;
         // for each entry in the matrix create a state and store in map.
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -33,19 +34,34 @@ public:
                     this->start = new State<Entry>(new Entry(i, j));
                     this->start->setCost(matrixGrid.at(i).at(j));
                     this->matrixStates[to_string(i) + "," + to_string(j)] = this->start;
-                    continue;
+                    isFinishStart = true;
                 }
                 if (i == finish->getI() && j == finish->getJ()) {
-                    this->finish = new State<Entry>(new Entry(i, j));
-                    this->finish->setCost(matrixGrid.at(i).at(j));
-                    this->matrixStates[to_string(i) + "," + to_string(j)] = this->finish;
-                    continue;
+                    if (!isFinishStart) {
+                        this->finish = new State<Entry>(new Entry(i, j));
+                        this->finish->setCost(matrixGrid.at(i).at(j));
+                        this->matrixStates[to_string(i) + "," + to_string(j)] = this->finish;
+                        isFinishStart = true;
+                    } else {
+                        this->finish = this->start;
+                    }
                 }
-                Entry *entry = new Entry(i, j);
-                State<Entry> *s = new State<Entry>(entry);
-                s->setCost(matrixGrid.at(i).at(j)); // set the starting cost for each state entry.
-                this->matrixStates[to_string(i) + "," + to_string(j)] = s;
+                if (!isFinishStart) {
+                    Entry *entry = new Entry(i, j);
+                    State<Entry> *s = new State<Entry>(entry);
+                    s->setCost(matrixGrid.at(i).at(j)); // set the starting cost for each state entry.
+                    this->matrixStates[to_string(i) + "," + to_string(j)] = s;
+                }
+                isFinishStart = false;
+
             }
+        }
+    }
+
+    virtual ~MatrixGraph() {
+        for (std::map<string, State<Entry> *>::iterator it = this->matrixStates.begin();
+             it != this->matrixStates.end(); ++it) {
+            delete(it->second);
         }
     }
 

@@ -10,10 +10,11 @@ MyTestClientHandler::MyTestClientHandler(Solver<string, string> *solver,
     this->cacheManager = cacheManager;
 }
 
-void MyTestClientHandler::handleClient(int sockfd) {
+void MyTestClientHandler::handleClient(int *sockfdPtr) {
     // get input from input stream until "/n" and put it in the solver's solve func.
     int index = 0;
     int n = 0;
+    int sockfd = *sockfdPtr;
     char buffer[256];
     string remainder, backRemainder, information;
     bool isDataEnd = false;

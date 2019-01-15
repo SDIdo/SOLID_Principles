@@ -7,6 +7,7 @@
 
 #include "Searchable.h"
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -20,26 +21,46 @@ protected:
     virtual string get2DPathString() {
         string pathString;
         vector<double> relation;
-        for (int i = 0; i < this->path.size() - 1; i++) {
-            State<T> *currentState = this->path.at(i);
-            State<T> *nextState = this->path.at(i + 1);
-            // get the relation between the two states, and append the step in the path string.
-            relation = this->searchable->getRelation(currentState, nextState);
-            if (relation.at(0) == 1) {
-                pathString += ", Up";
-            } else if (relation.at(0) == -1) {
-                pathString += ", Down";
-            } else if (relation.at(1) == 1) {
-                pathString += ", Left";
-            } else if (relation.at(1) == -1) {
-                pathString += ", Right";
+        State<T> *currentState;
+        State<T> *nextState;
+        if (this->path.empty()) {
+            pathString = "No such path.\n";
+        } else {
+            cout << "length : " << to_string(this->path.size() - 1) + "   ";
+            for (int i = 0; i < this->path.size() - 1; i++) {
+                if (i == 0) {
+                    pathString += "{";
+                } else {
+                    pathString += ", ";
+                }
+
+
+                currentState = this->path.at(i);
+                nextState = this->path.at(i + 1);
+                // get the relation between the two states, and append the step in the path string.
+                relation = this->searchable->getRelation(currentState, nextState);
+                if (relation.at(0) == 1) {
+                    pathString += "Up";
+                } else if (relation.at(0) == -1) {
+                    pathString += "Down";
+                } else if (relation.at(1) == 1) {
+                    pathString += "Left";
+                } else if (relation.at(1) == -1) {
+                    pathString += "Right";
+                }
+
+                if (i == this->path.size() - 2) {
+                    pathString += "}";
+                }
             }
         }
+        this->path.clear();
         return pathString;
     }
 
 public:
     virtual Solution search(Searchable<T> *searchable) = 0;
+    virtual ~Searcher() = default;
 
     virtual int getNumberOfNodesEvaluated() = 0;
 };

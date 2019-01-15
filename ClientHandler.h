@@ -11,7 +11,8 @@ using namespace std;
 
 class ClientHandler {
 public:
-    virtual void handleClient(int sockfd) = 0;
+    virtual void handleClient(int *sockfd) = 0;
+    virtual ~ClientHandler() = default;
 };
 
 #endif //PROJECTPART2_CLIENTHANDLER_H

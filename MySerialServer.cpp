@@ -8,10 +8,8 @@
 void MySerialServer::open(int port, ClientHandler *clientHandler) {
     this->clientHandler = clientHandler;
     this->port = port;
-
     pthread_t threadID;
     pthread_create(&threadID, nullptr, runSerialServer, this);
-    cout << "main thread is old and dying...\n";
     pthread_join(threadID, nullptr);
 }
 
@@ -72,9 +70,9 @@ void *MySerialServer::runSerialServerFunc(void *arguments) {
             perror("ERROR on accept");
             exit(1);
         }
-
+        cout << "HERE WITH NEW CLIENT!\n";
         cout << "Success\n";
-        this->clientHandler->handleClient(this->sockfd);
+        this->clientHandler->handleClient(&this->sockfd);
         cout << "YEAH\n";
         close(sockfd); // close the socket.
     }

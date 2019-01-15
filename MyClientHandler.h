@@ -30,13 +30,17 @@ public:
         this->cacheManager = cacheManager;
     }
 
-    ~MyClientHandler() = default;
+    virtual ~MyClientHandler() {
+        delete(this->cacheManager);
+        delete(this->solver);
+    }
 
-    void handleClient(int sockfd) {
+    virtual void handleClient(int *sockfdPtr) {
         // get input from input stream until "/n", each will be a row of the matrix.
         int index = 0;
         int n = 0;
         int numOfRows, columnsSize;
+        int sockfd = *sockfdPtr;
         char buffer[256];
         string remainder, backRemainder, information, problemString, answerString;
         bool isDataEnd = false;
@@ -63,10 +67,13 @@ public:
             if (isDataEnd) {
                 // if the user wrote 'end' - the matrix is assembled and sent to solver.
                 if (remainder == "end") {
+                    if (problemString.empty()) {
+                        break;
+                    }
 
                     // if the answer to the problem is in the cache - it will be written to client.
                     if (this->cacheManager->check(&problemString)) {
-                        cout << "FOUND IN THE CACHE!";
+                        cout << "FOUND IN THE CACHE!\n";
                         answerString = this->cacheManager->get(&problemString);
                     }
                         // if the answer is not in the cache - create searchable for solver and save answer in cache.
@@ -84,6 +91,7 @@ public:
                         matrixGrid.pop_back();
                         matrixGrid.pop_back();
                         // get the size of the matrix.
+
                         columnsSize = matrixGrid[0].size();
                         numOfRows = matrixGrid.size();
 
@@ -91,6 +99,7 @@ public:
                         Searchable<Entry> *searchable = new MatrixGraph(columnsSize, numOfRows, &start, &finish,
                                                                         matrixGrid);
                         answerString = this->solver->solve(searchable);
+                        delete(searchable);
                         this->cacheManager->set(&problemString, &answerString);
                     }
                     answerString += "\r\n";

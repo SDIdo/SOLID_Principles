@@ -2,17 +2,17 @@
 // Created by idox on 1/14/19.
 //
 #include "Searcher.h"
-#include <MatrixGraph.h>
+#include "MatrixGraph.h"
 #include "AStar.h"
 #include "BestFirstSearch.h"
 #include "DFS.h"
 #include "BFS.h"
 #include "MatrixTester.h"
-#define NUM_OF_MATRICES 5
-#define NUM_OF_TESTS 2
-#define MAX_COST 100
-#define MAX_DIM 6
-#define MIN_DIM 3
+#define NUM_OF_MATRICES 20
+#define NUM_OF_TESTS 10
+#define MAX_COST 20
+#define MAX_DIM 50
+#define MIN_DIM 10
 using namespace std;
 
 void MatrixTester::runTest() {
@@ -45,12 +45,12 @@ void MatrixTester::runTest() {
 //            AStar<Entry> astar;
 //            cout << "Shortest Path is: " << astar.search(checkMe) << '\n';
 //            cout << "Number of moves: " << astar.getNumberOfNodesEvaluated() << '\n';
-//            cout << "\n";
-//            cout << "Best First Search\n";
-//            BestFirstSearch<Entry> bestFirstSearch;
-//            cout << "Shortest Path is: " << bestFirstSearch.search(checkMe) << '\n';
-//            cout << "Number of moves: " << bestFirstSearch.getNumberOfNodesEvaluated() << '\n';
-//            cout << "\n";
+            cout << "\n";
+            cout << "Best First Search\n";
+            BestFirstSearch<Entry> bestFirstSearch;
+            cout << "Shortest Path is: " << bestFirstSearch.search(checkMe) << '\n';
+            cout << "Number of moves: " << bestFirstSearch.getNumberOfNodesEvaluated() << '\n';
+            cout << "\n";
 //            cout << "\n";
 //            cout << "DFS\n";
 //            DFS<Entry> dfs;
@@ -58,15 +58,15 @@ void MatrixTester::runTest() {
 //            cout << "Number of moves: " << dfs.getNumberOfNodesEvaluated() << '\n';
 //            cout << "\n";
 //            cout << "\n";
-            cout << "BFS\n";
-            DFS<Entry> bfs;
-            cout << "Shortest Path is: " << bfs.search(checkMe) << '\n';
-            cout << "Number of moves: " << bfs.getNumberOfNodesEvaluated() << '\n';
+//            cout << "BFS\n";
+//            BFS<Entry> bfs;
+//            cout << "Shortest Path is: " << bfs.search(checkMe) << '\n';
+//            cout << "Number of moves: " << bfs.getNumberOfNodesEvaluated() << '\n';
+//            cout << "\n";
+
+
+            cout << "**Done a round with all the algorithms**\n";
             cout << "\n";
-
-
-             cout << "**Done a round with all the algorithms**\n";
-             cout << "\n";
         }
     }
 }
@@ -87,23 +87,23 @@ vector<vector<int>> MatrixTester::createRandomMatrix(int width, int height) {
     //creating the random costs of the matrix
     for (int j = height; j >0; j--){
         for (int i = width; i > 0; i--){
-            randomCost = std::rand() % MAX_COST;
-            if ((std::rand()%5) == 4){
+            randomCost = 1 + (std::rand() % MAX_COST);
+            if ((std::rand()%10) == 4){
                 randomCost = -1;
             }
             row.push_back(randomCost);
-            }
+        }
         matrix.push_back(row);
         row.clear();
-        }
+    }
     return matrix;
 }
 
 void MatrixTester::printMatrix(vector<vector<int>> subject) {
     for (int i = 0; i < subject.size(); i++) {
         for (int j = 0; j < subject[i].size(); j++) {
-                cout << subject[i][j] << " ";
-            }
+            cout << subject[i][j] << " ";
+        }
         cout << "\n";
     }
 }

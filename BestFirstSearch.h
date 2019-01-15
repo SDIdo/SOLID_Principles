@@ -110,7 +110,7 @@ public:
 //        this->localCost[currentState] = currentState->getCost();
 //        this->globalCost[currentState] = this->calculateHeuristic(currentState);
 //        currentState->setCost(this->globalCost[currentState]);
-          currentState->setDistance(this->calculateHeuristic(currentState));
+        currentState->setDistance(this->calculateHeuristic(currentState));
 //        currentState->setCost(currentState->getCost() + this->calculateHeuristic(currentState)); //TODO added!
 
         while (!exploringQueue.empty()) {

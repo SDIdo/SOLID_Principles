@@ -21,7 +21,7 @@ class MyTestClientHandler : public ClientHandler {
 public:
     MyTestClientHandler(Solver<string, string> *solver, CacheManager<string, string> *cacheManager);
     ~MyTestClientHandler() = default;
-    virtual void handleClient(int sockfd);
+    virtual void handleClient(int *sockfd);
 };
 
 
