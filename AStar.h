@@ -20,8 +20,6 @@ private:
     //initialize cost maps
     map <State<T>*,double> globalCost;   //state costs + heuristics
     map <State<T>*,double> localCost;   //only state costs
-    //initialize grayList
-    vector<State<T>*> greyList;
     //initializing operations queue
     queue<State<T> *> exploringQueue;
 
@@ -58,12 +56,19 @@ public:
  * @return - the least expensive path to the finish.
  */
     virtual string search(Searchable<T> * searchable){
+        this->numberOfEvaluated = 0;
         this->searchable = searchable;
         //Would like to know your goal.
         this->goalState = searchable->getGoalState();
         //Would like to know your starting state.
         State<T> *currentState = searchable->getInitialState();
-        this->path = astar(currentState);
+        astar(currentState);
+        //clearing stage except for the path
+        while (!exploringQueue.empty()){
+            exploringQueue.pop();
+        }
+        localCost.clear();
+        globalCost.clear();
         reverse(this->path.begin(), this->path.end());
         return this->get2DPathString();
     }
@@ -73,21 +78,21 @@ public:
  * note: all that in the queue has heuristic value.
  */
     void prioritize(queue<State<T>*> &q) {
-        cout <<"[Welcome to prioritize]\n";
+//        cout <<"[Welcome to prioritize]\n";
         double minimumCost = DBL_MAX;
         queue<State<T> *> priority;
         State<T> *previousState;
 
         while (!q.empty()) {
             State<T> *currentState = q.front();
-            cout << "[Prioritize]Current T by cost " << currentState->getCost() << '\n';
+//            cout << "[Prioritize]Current T by cost " << currentState->getCost() << '\n';
             q.pop();
 
             if (currentState->getCost() < minimumCost) {
                 minimumCost = currentState->getCost();
-                cout << "current state is cheaper, updated minimum cost\n";
+//                cout << "current state is cheaper, updated minimum cost\n";
                 if (!priority.empty()) {
-                    cout << "queue wasn't empty so taking out the first and switching\n";
+//                    cout << "queue wasn't empty so taking out the first and switching\n";
                     previousState = priority.front();
                     priority.pop();
                     priority.push(currentState);
@@ -113,13 +118,12 @@ public:
  * @param searchable - a puzzle or any searchable field
  * @return the least expensive path to the finish.
  */
-    virtual vector<State<T>*> astar(State<T> *currentState) {
+    virtual void astar(State<T> *currentState) {
         if (currentState == goalState){
             this->path.push_back(currentState);
-            return this->path;
         }
         if (currentState->getCost() == -1){
-            return this->path;
+            return;
         }
         double travelCost = 0;
         exploringQueue.push(currentState);
@@ -151,14 +155,14 @@ public:
                 travelCost = this->localCost[currentState] + neighbor->getCost();
 
                 //TEST ZONE
-                cout << "[ASTAR]Current neigbor is " << "(" << neighbor->getState()->getI()
-                     << ", " << neighbor->getState()->getJ() << ")" << " with travlCost: " << travelCost << "\n";
+//                cout << "[ASTAR]Current neigbor is " << "(" << neighbor->getState()->getI()
+//                     << ", " << neighbor->getState()->getJ() << ")" << " with travlCost: " << travelCost << "\n";
                 //#
 
                 //first check if was added to heuristics:
                 if (!this->checkInHeuristicsMap(neighbor)) {
                     //Well not in Heuristic so should be set and added!
-                    cout << neighbor->getCost() << " wasn't in local cost, so adding it\n";
+//                    cout << neighbor->getCost() << " wasn't in local cost, so adding it\n";
                     this->localCost[neighbor] = travelCost;
                     //also set the heuristic for this neighbor according to it we'll sort in queue.
                     this->globalCost[neighbor] = travelCost + this->calculateHeuristic(neighbor);
@@ -168,8 +172,8 @@ public:
                 }
                 //should we add this state? check using comparisons between local costs
                 if ((this->localCost[neighbor]) > travelCost) {
-                    cout << "Found a better rout to this neighbor, updating! but won't be added to queue\n";
-                    cout << "So " << neighbor->getCost() << " will get it's came , from : " << currentState->getCost() << "\n";
+//                    cout << "Found a better rout to this neighbor, updating! but won't be added to queue\n";
+//                    cout << "So " << neighbor->getCost() << " will get it's came , from : " << currentState->getCost() << "\n";
                     this->localCost[neighbor] = travelCost;
                     this->globalCost[neighbor] = travelCost + this->calculateHeuristic(neighbor);
                     exploringQueue.push(neighbor);
@@ -177,18 +181,20 @@ public:
                     continue;
                 }
             }
-            cout << "next state queued, please sort!\n";
+//            cout << "next state queued, please sort!\n";
             this->prioritize(exploringQueue);
         }
         //So now that the queue is emptry traverse the states from the last one by each parent and parent
         State<T> *state = this->searchable->getGoalState();
         this->path.push_back(state);
+   
         while (state->getCameFrom()) {
-            cout << "Loop?\n";
+//            cout << "Loop?\n";
             this->path.push_back(state->getCameFrom());
             state = state->getCameFrom();
+            cout << "The State: " << state->getCost() << '\n';
+//            cout << "The Came From: " << state->getCameFrom()->getCost() << '\n';
         }
-        return this->path;
     }
     virtual int getNumberOfNodesEvaluated(){
         return this->numberOfEvaluated;
