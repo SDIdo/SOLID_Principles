@@ -16,10 +16,11 @@ using namespace std;
 
 template<class T>
 class BFS : public Searcher<T, string> {
-    vector<State<T> *> grey;
-    std::queue<State<T> *> queue;
 
-    vector<State<T> *> bfs(State<T> *currentState) {
+    void bfs(State<T> *currentState) {
+        vector<State<T> *> grey;
+        std::queue<State<T> *> queue;
+
         queue.push(currentState);
         grey.push_back(currentState);
 
@@ -35,13 +36,12 @@ class BFS : public Searcher<T, string> {
                     this->path.push_back(currentState->getCameFrom());
                     currentState = currentState->getCameFrom();
                 }
-                return this->path;
+                break;
             }
             list<State<T> *> neighborsList = this->searchable->getAllPossibleStates(currentState);
             for (State<T> *neighbor : neighborsList) {
                 // if the state is in the grey list.
                 if (find(grey.begin(), grey.end(), neighbor) != grey.end() || neighbor->getCost() == -1) {
-                    std::cout << "Element found in grey: " << '\n';
                     continue;
                 }
                 // if the neighbor was not visited yet, set the father to be the current state and visit it.
@@ -56,10 +56,17 @@ public:
     BFS() = default;
 
     virtual string search(Searchable<T> *searchable) {
-        this->searchable = searchable;
-        vector<State<T> *> path;
         State<T> *startState;
         string pathString;
+        this->searchable = searchable;
+        this->numberOfEvaluated = 0;
+
+        if (this->searchable->getGoalState()->getCost() == -1 || this->searchable->getInitialState()->getCost() == -1) {
+            return "Blocked start or finish.";
+        }
+        if (this->searchable->getInitialState()->equals(this->searchable->getGoalState())) {
+            return "Start is the goal state.";
+        }
 
         startState = searchable->getInitialState();
         this->bfs(startState); // search by BFS and return reversed path.
