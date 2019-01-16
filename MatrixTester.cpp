@@ -11,8 +11,8 @@
 #define NUM_OF_MATRICES 20
 #define NUM_OF_TESTS 10
 #define MAX_COST 20
-#define MAX_DIM 50
-#define MIN_DIM 10
+#define MAX_DIM 30
+#define MIN_DIM 20
 using namespace std;
 
 void MatrixTester::runTest() {
@@ -102,7 +102,11 @@ vector<vector<int>> MatrixTester::createRandomMatrix(int width, int height) {
 void MatrixTester::printMatrix(vector<vector<int>> subject) {
     for (int i = 0; i < subject.size(); i++) {
         for (int j = 0; j < subject[i].size(); j++) {
-            cout << subject[i][j] << " ";
+            if (j != subject[i].size() -1) {
+                cout << subject[i][j] << ",";
+            } else {
+                cout << subject[i][j];
+            }
         }
         cout << "\n";
     }

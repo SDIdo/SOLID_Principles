@@ -13,8 +13,11 @@
 #include <vector>
 #include "unistd.h"
 #include "../Server.h"
-#include <mutex>
 
+/**
+ * MyParallelServer extends Server, therefore could create a server.
+ * Used for parallel client handling on many threads.
+ */
 class MyParallelServer : public server_side::Server {
     ClientHandler *clientHandler;
     int port;
@@ -24,8 +27,6 @@ public:
     virtual ~MyParallelServer();
     virtual void open(int port, ClientHandler *clientHandler);
     virtual void stop();
-    void start();
-
     void runParallelServer();
     static void* clientHandling(void * a);
 };

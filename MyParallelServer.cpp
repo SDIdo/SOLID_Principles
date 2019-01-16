@@ -4,13 +4,21 @@
 
 #include "MyParallelServer.h"
 
-struct A {
+struct PthreadArgs {
     ClientHandler *ch;
     int *sock;
 };
 
+/**
+ * Destructor of MyParallelServer.
+ */
 MyParallelServer::~MyParallelServer() = default;
 
+/**
+ * This method opens the server with a given port and client handling protocol.
+ * @param port int of given port.
+ * @param clientHandler client handler pointer.
+ */
 void MyParallelServer::open(int port, ClientHandler *clientHandler) {
     this->clientHandler = clientHandler;
     this->port = port;
@@ -18,10 +26,12 @@ void MyParallelServer::open(int port, ClientHandler *clientHandler) {
 }
 
 /**
- * This method runs the server: reads information from client from
- * the socket, and updates samples map and symbol map accordingly.
- * @param a void pointer.
- * @return void pointer.
+ * This method runs the parallel server:
+ * It sets the socket for connections and then listens for connections.
+ * If the first client connected, the next clients will have 1 second to connect
+ * to the server socket. If no connections has been made in this time
+ * period - waits for all of the running threads to finish with their client
+ * handling. After all of the threads ended their connection with the clients, returns.
  */
 void MyParallelServer::runParallelServer() {
     int clilen;
@@ -88,10 +98,10 @@ void MyParallelServer::runParallelServer() {
         }
 
         pthread_t threadID;
-        A *a = new A();
-        a->sock = &newSocket;
-        a->ch = this->clientHandler;
-        pthread_create(&threadID, nullptr, &clientHandling, (void *) a);
+        PthreadArgs *args = new PthreadArgs();
+        args->sock = &newSocket;
+        args->ch = this->clientHandler;
+        pthread_create(&threadID, nullptr, &clientHandling, (void *) args);
         this->pthreadWorkers.push_back(threadID);
         // set timer for socket for the next clients.
         setsockopt(this->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &servertimeout, sizeof(servertimeout));
@@ -99,24 +109,27 @@ void MyParallelServer::runParallelServer() {
     }
 }
 
+/**
+ * This method is called after a timeout was been reached in the server socket.
+ * The calling main thread will wait for all of the pthreads to join.
+ */
 void MyParallelServer::stop() {
-    cout << "Welcome to bye\n";
     for (pthread_t pthreadId : this->pthreadWorkers) {
         pthread_join(pthreadId, nullptr);
     }
-    cout << "All pthread have been joined.\n";
 }
 
-void MyParallelServer::start() {
-
-}
-
-void *MyParallelServer::clientHandling(void *a) {
+/**
+ * This method is called by each opened thread, and in it the thread will handle
+ * the client with the client handler given by the server.
+ * @param a struct for the data of the pthread.
+ * @return pointer to void.
+ */
+void *MyParallelServer::clientHandling(void *args) {
     cout << "handle started\n";
-    A *b = (A *) a;
-    b->ch->handleClient(b->sock);
+    PthreadArgs *pthreadArgs = (PthreadArgs *) args;
+    pthreadArgs->ch->handleClient(pthreadArgs->sock);
     cout << "handle ended\n";
-    close(*b->sock);
-    delete(b);
-//    pthread_exit(&b->pthreadID);
+    close(*pthreadArgs->sock);
+    delete (pthreadArgs);
 }

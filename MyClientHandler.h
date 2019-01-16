@@ -8,6 +8,7 @@
 #include "../ClientHandler.h"
 #include "../Solver.h"
 #include "../CacheManager.h"
+#include "IO.h"
 #include "Searchable.h"
 #include "MatrixGraph.h"
 #include "Entry.h"
@@ -19,22 +20,42 @@
 
 using namespace std;
 
+/**
+ * MyClientHandler used for solving search problems for clients.
+ * @tparam T template for the searchable.
+ * @tparam Solution solution returned by the solver.
+ * @tparam Problem given problem from the client.
+ */
 template<class T, class Solution, class Problem>
 class MyClientHandler : public ClientHandler {
     Solver<Searchable<T>, string> *solver;
     CacheManager<Problem, Solution> *cacheManager;
 public:
+    /**
+     * Constructor of MyClientHandler. receives solver and cache manager.
+     * @param solver used for solving clients problems.
+     * @param cacheManager used for caching solutions provided by the solver.
+     */
     MyClientHandler(Solver<Searchable<T>, string> *solver,
                     CacheManager<Problem, Solution> *cacheManager) {
         this->solver = solver;
         this->cacheManager = cacheManager;
     }
 
+    /**
+     * Destructor of MyClientHandler.
+     */
     virtual ~MyClientHandler() {
-        delete(this->cacheManager);
-        delete(this->solver);
+        delete (this->cacheManager);
+        delete (this->solver);
     }
 
+    /**
+     * This method handles a client with a given socket.
+     * It checks if the problem is inside the cache. If it is - returns it.
+     * Else, the searcher solves the problem and stores it in cache.
+     * @param sockfdPtr pointer to the socket.
+     */
     virtual void handleClient(int *sockfdPtr) {
         // get input from input stream until "/n", each will be a row of the matrix.
         int index = 0;
@@ -67,6 +88,7 @@ public:
             if (isDataEnd) {
                 // if the user wrote 'end' - the matrix is assembled and sent to solver.
                 if (remainder == "end") {
+                    problemString = IO::readServer("roy.txt");
                     if (problemString.empty()) {
                         break;
                     }
@@ -79,7 +101,7 @@ public:
                         // if the answer is not in the cache - create searchable for solver and save answer in cache.
                     else {
                         vector<vector<int>> matrixGrid;
-                        for (string str : rowsVector) {
+                        for (string str : IO::readStringVectorServer("roy.txt")) {
                             matrixGrid.push_back(line_parse(str));
                         }
                         // create the start and finish entries.
@@ -99,7 +121,7 @@ public:
                         Searchable<Entry> *searchable = new MatrixGraph(columnsSize, numOfRows, &start, &finish,
                                                                         matrixGrid);
                         answerString = this->solver->solve(searchable);
-                        delete(searchable);
+                        delete (searchable);
                         this->cacheManager->set(&problemString, &answerString);
                     }
                     answerString += "\r\n";

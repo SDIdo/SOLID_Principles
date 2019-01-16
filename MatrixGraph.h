@@ -23,6 +23,15 @@ class MatrixGraph : public Searchable<Entry> {
     int width, height;
 public:
 
+    /**
+     * Constructor of matrix graph. receives the matrix costs vector, finish and start entries,
+     * height and width of the matrix.
+     * @param width width of the matrix graph.
+     * @param height height of the matrix graph.
+     * @param start start entry.
+     * @param finish finish entry.
+     * @param matrixGrid vector of the costs of each state in matrix.
+     */
     MatrixGraph(int width, int height, Entry *start, Entry *finish, vector<vector<int>> matrixGrid) {
         this->width = width;
         this->height = height;
@@ -30,12 +39,14 @@ public:
         // for each entry in the matrix create a state and store in map.
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
+                // if the current state is the start state.
                 if (i == start->getI() && j == start->getJ()) {
                     this->start = new State<Entry>(new Entry(i, j));
                     this->start->setCost(matrixGrid.at(i).at(j));
                     this->matrixStates[to_string(i) + "," + to_string(j)] = this->start;
                     isFinishStart = true;
                 }
+                // if the current state is the finish state.
                 if (i == finish->getI() && j == finish->getJ()) {
                     if (!isFinishStart) {
                         this->finish = new State<Entry>(new Entry(i, j));
@@ -58,10 +69,14 @@ public:
         }
     }
 
+    /**
+     * Destructor of the matrix graph.
+     * Deletes each state of the matrix.
+     */
     virtual ~MatrixGraph() {
         for (std::map<string, State<Entry> *>::iterator it = this->matrixStates.begin();
              it != this->matrixStates.end(); ++it) {
-            delete(it->second);
+            delete (it->second);
         }
     }
 
@@ -122,10 +137,6 @@ public:
         relation.push_back(s1->getState()->getI() - s2->getState()->getI());
         relation.push_back(s1->getState()->getJ() - s2->getState()->getJ());
         return relation;
-    }
-
-    vector<vector<int>> getStateGrid() {
-        return this->matrixGrid;
     }
 };
 

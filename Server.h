@@ -9,13 +9,12 @@
 #include <netinet/in.h>
 #include <string.h>
 
-/**
- * Interface of Server.
- * Each server could connect on a different port and have
- * different client handling protocols.
- */
-
 namespace server_side {
+    /**
+     * Interface of Server.
+     * Each server could connect on a different port and have
+     * different client handling protocols.
+     */
     class Server {
     protected:
         int sockfd;

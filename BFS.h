@@ -14,9 +14,19 @@
 
 using namespace std;
 
+/**
+ * BFS algorithm class. BFS is a searcher, which, given a searchable could
+ * search it and return the string value of the path found from start to end states.
+ * @tparam T generic class for the searcher.
+ */
 template<class T>
 class BFS : public Searcher<T, string> {
 
+    /**
+     * This method is the bfs search. receives a current state for the search.
+     * It updates the path (solution).
+     * @param currentState current state of the search.
+     */
     void bfs(State<T> *currentState) {
         vector<State<T> *> grey;
         std::queue<State<T> *> queue;
@@ -53,17 +63,28 @@ class BFS : public Searcher<T, string> {
     }
 
 public:
+    /**
+     * Constructor of BFS algorithm.
+     */
     BFS() = default;
 
+    /**
+     * This method starts the search from the initial state to the finish state, and then
+     * returns string of the path.
+     * @param searchable searchable for the search.
+     * @return string of the path.
+     */
     virtual string search(Searchable<T> *searchable) {
         State<T> *startState;
         string pathString;
         this->searchable = searchable;
         this->numberOfEvaluated = 0;
 
+        // if the start of goal are blocked and can't be reached.
         if (this->searchable->getGoalState()->getCost() == -1 || this->searchable->getInitialState()->getCost() == -1) {
             return "Blocked start or finish.";
         }
+        // if the initial state is the goal state.
         if (this->searchable->getInitialState()->equals(this->searchable->getGoalState())) {
             return "Start is the goal state.";
         }
@@ -76,6 +97,11 @@ public:
         return pathString;
     }
 
+    /**
+     * This method returns the number of nodes that
+     * the algorithm evaluated in the search.
+     * @return number of nodes evaluated by the search.
+     */
     virtual int getNumberOfNodesEvaluated() {
         return this->numberOfEvaluated;
     }

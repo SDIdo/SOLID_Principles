@@ -9,6 +9,10 @@
 
 using namespace std;
 
+/**
+ * Client Handler interface.
+ * Client handlers can handle clients with a given socket.
+ */
 class ClientHandler {
 public:
     virtual void handleClient(int *sockfd) = 0;

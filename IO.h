@@ -8,18 +8,26 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <cstring>
 #include <iostream>
 #include <sstream>
-#include <fstream>      // std::fstream
+#include <fstream>
+
 using std::string;
 using std::ifstream;
 using std::fstream;
+using std::vector;
 
+/**
+ * Class IO is responsible of reading to given map and writing to a file.
+ */
 class IO {
-    static void splitToVecByDelim(std::vector<string> &keyVal, const string &info, const string &delimiter);
 public:
-    static int writeMap(string path, std::unordered_map<string, string>&);
     static int writeKeyVal(string path, string key, string val);
-    static int readMap(string path, std::unordered_map<string, string>&);      //scat it's string string
+    static int readMap(string path, std::unordered_map<string, string> &);      //scat it's string string
+
+    static string readServer(string path);
+    static vector<string> readStringVectorServer(string path);
 };
+
 #endif //PROJECTPART2_IO_H

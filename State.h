@@ -10,9 +10,8 @@
 template<class T>
 class State {
     T *state;
-    double cost;
+    double cost, distance;
     State<T> *cameFrom;
-    double distance;
 
 public:
 
@@ -79,9 +78,18 @@ public:
         return this->state == otherState->getState();
     }
 
+    /**
+     * This method sets the distance of the state from the goal state.
+     * @param newDistance new distance.
+     */
     void setDistance(double newDistance) {
         this->distance = newDistance;
     }
+
+    /**
+     * This method returns the distance from the goal state.
+     * @return distance from goal state.
+     */
     double getDistance() {
         return this->distance;
     }

@@ -31,25 +31,31 @@ namespace boot {
      */
     class Main {
     public:
+        /**
+         * This method runs the bootable server. It initializes a parallel
+         * server, solver, cache manager and client handler for the handling protocol.
+         * @param port number of port for the initialization of the server.
+         * @return 0 if process succeeded.
+         */
         int main(int port) {
-//            // create server.
-//            server_side::Server *server = new MyParallelServer;
-//            // create best searcher algorithm, and searcher solver (object adapter).
-//            Searcher<Entry, string> *searcher = new AStar<Entry>();
-//            Solver<Searchable<Entry>, string> *searcherSolver = new SearcherSolver<Entry, string>(searcher);
-//
-//            // create file cache manager.
-//            CacheManager<string, string> *cacheManager = new FileCacheManager("try.txt");
-//            // create the handling of clients with the searcher solver.
-//            ClientHandler *clientHandler = new MyClientHandler<Entry, string, string>(searcherSolver, cacheManager);
-//            // open server with port and client handler.
-//            server->open(port, clientHandler);
-//
-//            delete (server);
-//            delete (clientHandler);
+            // create server.
+            server_side::Server *server = new MyParallelServer;
+            // create best searcher algorithm, and searcher solver (object adapter).
+            Searcher<Entry, string> *searcher = new AStar<Entry>();
+            Solver<Searchable<Entry>, string> *searcherSolver = new SearcherSolver<Entry, string>(searcher);
 
-        MatrixTester mt;
-        mt.runTest();
+            // create file cache manager.
+            CacheManager<string, string> *cacheManager = new FileCacheManager("try.txt");
+            // create the handling of clients with the searcher solver.
+            ClientHandler *clientHandler = new MyClientHandler<Entry, string, string>(searcherSolver, cacheManager);
+            // open server with port and client handler.
+            server->open(port, clientHandler);
+
+            delete (server);
+            delete (clientHandler);
+
+//        MatrixTester mt;
+//        mt.runTest();
             return 0;
         }
     };

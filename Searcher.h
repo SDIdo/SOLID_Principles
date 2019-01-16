@@ -11,6 +11,13 @@
 
 using namespace std;
 
+/**
+ * Abstract class Searcher.
+ * Searchers can search in given searchables and return solutions
+ * according to the search.
+ * @tparam T generic class of the template for the search.
+ * @tparam Solution return value of the search.
+ */
 template<class T, class Solution>
 class Searcher {
 protected:
@@ -18,6 +25,10 @@ protected:
     vector<State<T> *> path;
     Searchable<T> *searchable;
 
+    /**
+     * This method returns the string representation of the searcher's path.
+     * @return string representation of the path.
+     */
     virtual string get2DPathString() {
         string pathString;
         vector<double> relation;
@@ -60,6 +71,7 @@ protected:
 
 public:
     virtual Solution search(Searchable<T> *searchable) = 0;
+
     virtual ~Searcher() = default;
 
     virtual int getNumberOfNodesEvaluated() = 0;
